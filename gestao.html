@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestão Académica</title>
+<style>
+/* ====== MESMO CSS DO TEU CÓDIGO ====== */
+* {margin:0; padding:0; box-sizing:border-box;}
+body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding:20px;}
+.container {max-width:1200px; margin:0 auto; background:white; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden;}
+.header {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:30px;}
+.header h1 {font-size:2.5em; margin-bottom:10px;}
+.header p {opacity:0.9;}
+.tabs {display:flex; background:#f7f7f7; border-bottom:2px solid #e0e0e0;}
+.tab {flex:1; padding:20px; border:none; background:none; font-size:1.1em; font-weight:600; cursor:pointer; transition:all 0.3s; color:#666;}
+.tab:hover {background:#e8e8e8;}
+.tab.active {background:white; color:#667eea; border-bottom:3px solid #667eea;}
+.content {padding:30px;}
+.tab-content {display:none;}
+.tab-content.active {display:block;}
+.semester-selector {margin-bottom:30px; display:flex; align-items:center; gap:15px;}
+.semester-selector label {font-weight:600; color:#333;}
+.semester-selector select, input[type="number"], input[type="text"] {padding:10px 15px; border:2px solid #e0e0e0; border-radius:8px; font-size:1em; transition:border 0.3s;}
+.semester-selector select:focus, input:focus {outline:none; border-color:#667eea;}
+.btn {padding:12px 24px; border:none; border-radius:8px; font-size:1em; font-weight:600; cursor:pointer; transition:all 0.3s;}
+.btn-primary {background:#667eea; color:white;}
+.btn-primary:hover {background:#5568d3; transform:translateY(-2px); box-shadow:0 5px 15px rgba(102,126,234,0.4);}
+.btn-danger {background:#ef4444; color:white; padding:8px 12px; font-size:0.9em;}
+.btn-danger:hover {background:#dc2626;}
+.btn-success {background:#10b981; color:white;}
+.btn-success:hover {background:#059669;}
+.subject-card {background:#f9fafb; border:2px solid #e5e7eb; border-radius:12px; padding:25px; margin-bottom:20px;}
+.subject-header {display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+.subject-header h3 {font-size:1.5em; color:#1f2937;}
+.grade-display {display:flex; align-items:center; gap:15px;}
+.final-grade {padding:12px 20px; border-radius:8px; font-size:1.3em; font-weight:bold;}
+.grade-pass {background:#d1fae5; color:#065f46;}
+.grade-fail {background:#fee2e2; color:#991b1b;}
+.subject-grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:15px; margin-bottom:20px;}
+.subject-section {background:white; padding:20px; border-radius:8px; border:1px solid #e5e7eb;}
+.subject-section h4 {margin-bottom:15px; color:#374151;}
+.input-group {margin-bottom:15px;}
+.input-group label {display:block; font-size:0.9em; color:#6b7280; margin-bottom:5px;}
+.trabalhos-list {margin-top:10px;}
+.trabalho-item {display:flex; justify-content:space-between; align-items:center; background:#f3f4f6; padding:10px; border-radius:6px; margin-bottom:8px;}
+.finance-card {background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:30px; border-radius:12px; margin-bottom:20px;}
+.finance-card h3 {margin-bottom:20px; font-size:1.5em;}
+.finance-grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:20px;}
+.finance-stat {background:rgba(255,255,255,0.2); padding:20px; border-radius:8px; backdrop-filter:blur(10px);}
+.finance-stat p {font-size:0.9em; opacity:0.9; margin-bottom:8px;}
+.finance-stat h4 {font-size:2em;}
+.material-card {background:#f0fdf4; border:2px solid #86efac; padding:30px; border-radius:12px;}
+.material-header {display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;}
+.material-list {margin-bottom:20px;}
+.material-item {background:white; padding:20px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border:1px solid #d1fae5;}
+.material-info h4 {color:#065f46; margin-bottom:5px;}
+.material-info p {color:#6b7280; font-size:0.9em;}
+.material-price {font-size:1.5em; font-weight:bold; color:#10b981;}
+.empty-state {text-align:center; padding:60px 20px; color:#9ca3af;}
+.empty-state svg {width:80px; height:80px; margin-bottom:20px; opacity:0.5;}
+.summary-card {background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%); color:white; padding:30px; border-radius:12px; margin-top:20px;}
+@media (max-width:768px){.subject-grid{grid-template-columns:1fr;}.header h1{font-size:1.8em;}}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📚 Gestão Académica</h1>
+        <p>Organiza as tuas cadeiras e finanças</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('cadeiras')">📊 Cadeiras</button>
+        <button class="tab" onclick="switchTab('financas')">💰 Finanças</button>
+    </div>
+
+    <div class="content">
+        <!-- Tab Cadeiras -->
+        <div id="cadeiras" class="tab-content active">
+            <div class="semester-selector">
+                <label>Semestre:</label>
+                <select id="semester-select" onchange="renderSubjects()">
+                    <option value="1">1º Semestre</option>
+                    <option value="2">2º Semestre</option>
+                    <option value="3">3º Semestre</option>
+                    <option value="4">4º Semestre</option>
+                    <option value="5">5º Semestre</option>
+                    <option value="6">6º Semestre</option>
+                    <option value="7">7º Semestre</option>
+                    <option value="8">8º Semestre</option>
+                </select>
+                <button class="btn btn-primary" onclick="addSubject()" style="margin-left:auto;">+ Adicionar Cadeira</button>
+            </div>
+            <div id="subjects-container"></div>
+        </div>
+
+        <!-- Tab Finanças -->
+        <div id="financas" class="tab-content">
+            <div class="finance-card">
+                <h3>💳 Propinas</h3>
+                <div class="finance-grid">
+                    <div class="input-group">
+                        <label>Valor Mensal (€)</label>
+                        <input type="number" id="propina-mensal" onchange="saveFinances()" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Meses Totais</label>
+                        <input type="number" id="meses-totais" onchange="saveFinances()" placeholder="10">
+                    </div>
+                    <div class="input-group">
+                        <label>Meses Pagos</label>
+                        <input type="number" id="meses-pagos" onchange="saveFinances()" placeholder="0">
+                    </div>
+                </div>
+                <div class="finance-grid">
+                    <div class="finance-stat">
+                        <p>Total Pago</p>
+                        <h4 id="total-pago">0.00 €</h4>
+                    </div>
+                    <div class="finance-stat">
+                        <p>Restante a Pagar</p>
+                        <h4 id="restante-pagar">0.00 €</h4>
+                    </div>
+                    <div class="finance-stat">
+                        <p>Progresso</p>
+                        <h4 id="progresso">0%</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="material-card">
+                <div class="material-header">
+                    <h3>📖 Material Escolar</h3>
+                    <button class="btn btn-success" onclick="addMaterial()">+ Adicionar</button>
+                </div>
+                <div id="material-list" class="material-list"></div>
+                <div class="finance-stat" style="background:white;color:#10b981;border:2px solid #86efac;">
+                    <p style="color:#6b7280;">Total Gasto em Material</p>
+                    <h4 id="total-material">0.00 €</h4>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <h3>📊 Resumo Total</h3>
+                <div class="finance-grid">
+                    <div class="finance-stat">
+                        <p>Total Gasto (Propinas + Material)</p>
+                        <h4 id="total-gasto">0.00 €</h4>
+                    </div>
+                    <div class="finance-stat">
+                        <p>Total Previsto</p>
+                        <h4 id="total-previsto">0.00 €</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões de Backup -->
+            <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn btn-success" onclick="exportData()">💾 Exportar Dados</button>
+                <input type="file" accept=".json" onchange="importData(this.files[0])">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Estado
+let subjects = {};
+let finances = {
+    propinaMensal:0,
+    mesesTotais:0,
+    mesesPagos:0,
+    materialEscolar:[]
+};
+
+// ======= LOCALSTORAGE =======
+function loadData() {
+    const subjectsData = localStorage.getItem('subjects');
+    const financesData = localStorage.getItem('finances');
+
+    if(subjectsData) subjects = JSON.parse(subjectsData);
+    if(financesData) finances = JSON.parse(financesData);
+
+    renderSubjects();
+    renderFinances();
+}
+
+function saveData() {
+    localStorage.setItem('subjects', JSON.stringify(subjects));
+    localStorage.setItem('finances', JSON.stringify(finances));
+}
+
+// ======= EXPORT / IMPORT =======
+function exportData() {
+    const data = { subjects, finances };
+    const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'gestao_academica_backup.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function importData(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = JSON.parse(e.target.result);
+        subjects = data.subjects || {};
+        finances = data.finances || {};
+        saveData();
+        renderSubjects();
+        renderFinances();
+    };
+    reader.readAsText(file);
+}
+
+// ======= TABS =======
+function switchTab(tabName) {
+    document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content=>content.classList.remove('active'));
+
+    event.target.classList.add('active');
+    document.getElementById(tabName).classList.add('active');
+}
+
+// ======= CADASTRO DE CADEIRAS =======
+function addSubject() {
+    const name = prompt('Nome da cadeira:');
+    if(!name) return;
+    const semester = document.getElementById('semester-select').value;
+    if(!subjects[semester]) subjects[semester] = {};
+    subjects[semester][name] = { frequencia:{nota:0,peso:0}, exame:{nota:0,peso:0}, trabalhos:[] };
+    saveData();
+    renderSubjects();
+}
+
+function removeSubject(name) {
+    if(!confirm(`Eliminar ${name}?`)) return;
+    const semester = document.getElementById('semester-select').value;
+    delete subjects[semester][name];
+    saveData();
+    renderSubjects();
+}
+
+function updateSubject(name, field, subfield, value) {
+    const semester = document.getElementById('semester-select').value;
+    subjects[semester][name][field][subfield] = parseFloat(value)||0;
+    saveData();
+    renderSubjects();
+}
+
+function addTrabalho(subjectName) {
+    const nota = parseFloat(prompt('Nota do trabalho (0-20):'));
+    const peso = parseFloat(prompt('Peso do trabalho (%):'));
+    if(isNaN(nota)||isNaN(peso)) return;
+    const semester = document.getElementById('semester-select').value;
+    subjects[semester][subjectName].trabalhos.push({nota,peso});
+    saveData();
+    renderSubjects();
+}
+
+function removeTrabalho(subjectName,index) {
+    const semester = document.getElementById('semester-select').value;
+    subjects[semester][subjectName].trabalhos.splice(index,1);
+    saveData();
+    renderSubjects();
+}
+
+function calculateFinalGrade(subject) {
+    const freq = (subject.frequencia.nota * subject.frequencia.peso)/100;
+    const exam = (subject.exame.nota * subject.exame.peso)/100;
+    const trabalhos = subject.trabalhos.reduce((sum,t)=>sum+(t.nota*t.peso)/100,0);
+    return (freq+exam+trabalhos).toFixed(2);
+}
+
+function renderSubjects() {
+    const semester = document.getElementById('semester-select').value;
+    const container = document.getElementById('subjects-container');
+    const currentSubjects = subjects[semester] || {};
+    const names = Object.keys(currentSubjects);
+    if(names.length===0){
+        container.innerHTML = `<div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+            <p>Nenhuma cadeira adicionada neste semestre</p>
+        </div>`;
+        return;
+    }
+
+    container.innerHTML = names.map(name=>{
+        const s = currentSubjects[name];
+        const notaFinal = calculateFinalGrade(s);
+        const passed = parseFloat(notaFinal)>=10;
+        return `
+        <div class="subject-card">
+            <div class="subject-header">
+                <h3>${name}</h3>
+                <div class="grade-display">
+                    <div class="final-grade ${passed?'grade-pass':'grade-fail'}">${notaFinal}</div>
+                    <button class="btn btn-danger" onclick="removeSubject('${name}')">🗑️</button>
+                </div>
+            </div>
+            <div class="subject-grid">
+                <div class="subject-section">
+                    <h4>Teste de Frequência</h4>
+                    <div class="input-group">
+                        <label>Nota (0-20)</label>
+                        <input type="number" min="0" max="20" step="0.1" value="${s.frequencia.nota}" onchange="updateSubject('${name}','frequencia','nota',this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>Peso (%)</label>
+                        <input type="number" min="0" max="100" value="${s.frequencia.peso}" onchange="updateSubject('${name}','frequencia','peso',this.value)">
+                    </div>
+                </div>
+                <div class="subject-section">
+                    <h4>Exame</h4>
+                    <div class="input-group">
+                        <label>Nota (0-20)</label>
+                        <input type="number" min="0" max="20" step="0.1" value="${s.exame.nota}" onchange="updateSubject('${name}','exame','nota',this.value)">
+                    </div>
+                    <div class="input-group">
+                        <label>Peso (%)</label>
+                        <input type="number" min="0" max="100" value="${s.exame.peso}" onchange="updateSubject('${name}','exame','peso',this.value)">
+                    </div>
+                </div>
+                <div class="subject-section">
+                    <h4>Trabalhos</h4>
+                    <div class="trabalhos-list">
+                        ${s.trabalhos.map((t,i)=>`
+                            <div class="trabalho-item">
+                                <span>${t.nota} (${t.peso}%)</span>
+                                <button class="btn btn-danger" onclick="removeTrabalho('${name}',${i})">🗑️</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="btn btn-primary" onclick="addTrabalho('${name}')">+ Adicionar Trabalho</button>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+// ======= FINANÇAS =======
+function saveFinances() {
+    finances.propinaMensal = parseFloat(document.getElementById('propina-mensal').value)||0;
+    finances.mesesTotais = parseInt(document.getElementById('meses-totais').value)||0;
+    finances.mesesPagos = parseInt(document.getElementById('meses-pagos').value)||0;
+    saveData();
+    renderFinances();
+}
+
+function addMaterial() {
+    const nome = prompt('Nome do material:');
+    if(!nome) return;
+    const preco = parseFloat(prompt('Preço (€):'));
+    if(isNaN(preco)) return;
+    finances.materialEscolar.push({nome,preco});
+    saveData();
+    renderFinances();
+}
+
+function renderFinances() {
+    document.getElementById('propina-mensal').value = finances.propinaMensal;
+    document.getElementById('meses-totais').value = finances.mesesTotais;
+    document.getElementById('meses-pagos').value = finances.mesesPagos;
+
+    const totalPago = finances.propinaMensal * finances.mesesPagos;
+    const restante = finances.propinaMensal * (finances.mesesTotais - finances.mesesPagos);
+    const progresso = finances.mesesTotais>0?Math.round((finances.mesesPagos/finances.mesesTotais)*100):0;
+
+    document.getElementById('total-pago').innerText = totalPago.toFixed(2)+' €';
+    document.getElementById('restante-pagar').innerText = restante.toFixed(2)+' €';
+    document.getElementById('progresso').innerText = progresso+'%';
+
+    const materialList = document.getElementById('material-list');
+    if(finances.materialEscolar.length===0){
+        materialList.innerHTML = `<p style="opacity:0.6;">Nenhum material adicionado</p>`;
+    } else {
+        materialList.innerHTML = finances.materialEscolar.map((m,i)=>`
+            <div class="material-item">
+                <div class="material-info">
+                    <h4>${m.nome}</h4>
+                    <p>Preço: ${m.preco.toFixed(2)} €</p>
+                </div>
+                <button class="btn btn-danger" onclick="removeMaterial(${i})">🗑️</button>
+            </div>
+        `).join('');
+    }
+
+    const totalMaterial = finances.materialEscolar.reduce((sum,m)=>sum+m.preco,0);
+    document.getElementById('total-material').innerText = totalMaterial.toFixed(2)+' €';
+
+    const totalGasto = totalPago + totalMaterial;
+    const totalPrevisto = (finances.propinaMensal*finances.mesesTotais) + totalMaterial;
+    document.getElementById('total-gasto').innerText = totalGasto.toFixed(2)+' €';
+    document.getElementById('total-previsto').innerText = totalPrevisto.toFixed(2)+' €';
+}
+
+function removeMaterial(index){
+    finances.materialEscolar.splice(index,1);
+    saveData();
+    renderFinances();
+}
+
+// ======= INIT =======
+loadData();
+</script>
+</body>
+</html>
