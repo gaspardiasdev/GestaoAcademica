@@ -354,11 +354,13 @@ function saveFinances() {
 }
 
 function addMaterial() {
-    const nome = prompt('Nome do material:');
+    const nome = prompt('Nome do gasto:');
     if(!nome) return;
-    const preco = parseFloat(prompt('Preço (kz):'));
+    const preco = parseFloat(prompt('Preço unitário (kz):'));
     if(isNaN(preco)) return;
-    finances.materialEscolar.push({nome,preco});
+    const quantidade = parseInt(prompt('Quantidade:'),10);
+    if(isNaN(quantidade) || quantidade<1) return;
+    finances.materialEscolar.push({nome,preco,quantidade});
     saveData();
     renderFinances();
 }
@@ -378,26 +380,36 @@ function renderFinances() {
 
     const materialList = document.getElementById('material-list');
     if(finances.materialEscolar.length===0){
-        materialList.innerHTML = `<p style="opacity:0.6;">Nenhum material adicionado</p>`;
+        materialList.innerHTML = `<p style="opacity:0.6;">Nenhum gasto adicionado</p>`;
     } else {
         materialList.innerHTML = finances.materialEscolar.map((m,i)=>`
             <div class="material-item">
                 <div class="material-info">
                     <h4>${m.nome}</h4>
-                    <p>Preço: ${m.preco.toFixed(2)} kz</p>
+                    <p>Preço unitário: ${m.preco.toFixed(2)} kz</p>
+                    <p>Quantidade: <input type="number" min="1" value="${m.quantidade}" onchange="updateMaterial(${i},this.value)"></p>
+                    <p>Total: ${(m.preco*m.quantidade).toFixed(2)} kz</p>
                 </div>
                 <button class="btn btn-danger" onclick="removeMaterial(${i})">🗑️</button>
             </div>
         `).join('');
     }
 
-    const totalMaterial = finances.materialEscolar.reduce((sum,m)=>sum+m.preco,0);
+    const totalMaterial = finances.materialEscolar.reduce((sum,m)=>sum+m.preco*m.quantidade,0);
     document.getElementById('total-material').innerText = totalMaterial.toFixed(2)+' kz';
 
     const totalGasto = totalPago + totalMaterial;
     const totalPrevisto = (finances.propinaMensal*finances.mesesTotais) + totalMaterial;
     document.getElementById('total-gasto').innerText = totalGasto.toFixed(2)+' kz';
     document.getElementById('total-previsto').innerText = totalPrevisto.toFixed(2)+' kz';
+}
+
+function updateMaterial(index, novaQtd){
+    novaQtd = parseInt(novaQtd,10);
+    if(isNaN(novaQtd) || novaQtd<1) return;
+    finances.materialEscolar[index].quantidade = novaQtd;
+    saveData();
+    renderFinances();
 }
 
 function removeMaterial(index){
