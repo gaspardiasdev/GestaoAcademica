@@ -101,7 +101,7 @@ body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubun
                 <h3>💳 Propinas</h3>
                 <div class="finance-grid">
                     <div class="input-group">
-                        <label>Valor Mensal (€)</label>
+                        <label>Valor Mensal (kz)</label>
                         <input type="number" id="propina-mensal" onchange="saveFinances()" placeholder="0.00" step="0.01">
                     </div>
                     <div class="input-group">
@@ -116,11 +116,11 @@ body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubun
                 <div class="finance-grid">
                     <div class="finance-stat">
                         <p>Total Pago</p>
-                        <h4 id="total-pago">0.00 €</h4>
+                        <h4 id="total-pago">0.00 kz</h4>
                     </div>
                     <div class="finance-stat">
                         <p>Restante a Pagar</p>
-                        <h4 id="restante-pagar">0.00 €</h4>
+                        <h4 id="restante-pagar">0.00 kz</h4>
                     </div>
                     <div class="finance-stat">
                         <p>Progresso</p>
@@ -137,7 +137,7 @@ body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubun
                 <div id="material-list" class="material-list"></div>
                 <div class="finance-stat" style="background:white;color:#10b981;border:2px solid #86efac;">
                     <p style="color:#6b7280;">Total Gasto em Material</p>
-                    <h4 id="total-material">0.00 €</h4>
+                    <h4 id="total-material">0.00 kz</h4>
                 </div>
             </div>
 
@@ -146,11 +146,11 @@ body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubun
                 <div class="finance-grid">
                     <div class="finance-stat">
                         <p>Total Gasto (Propinas + Material)</p>
-                        <h4 id="total-gasto">0.00 €</h4>
+                        <h4 id="total-gasto">0.00 kz</h4>
                     </div>
                     <div class="finance-stat">
                         <p>Total Previsto</p>
-                        <h4 id="total-previsto">0.00 €</h4>
+                        <h4 id="total-previsto">0.00 kz</h4>
                     </div>
                 </div>
             </div>
@@ -356,7 +356,7 @@ function saveFinances() {
 function addMaterial() {
     const nome = prompt('Nome do material:');
     if(!nome) return;
-    const preco = parseFloat(prompt('Preço (€):'));
+    const preco = parseFloat(prompt('Preço (kz):'));
     if(isNaN(preco)) return;
     finances.materialEscolar.push({nome,preco});
     saveData();
@@ -372,8 +372,8 @@ function renderFinances() {
     const restante = finances.propinaMensal * (finances.mesesTotais - finances.mesesPagos);
     const progresso = finances.mesesTotais>0?Math.round((finances.mesesPagos/finances.mesesTotais)*100):0;
 
-    document.getElementById('total-pago').innerText = totalPago.toFixed(2)+' €';
-    document.getElementById('restante-pagar').innerText = restante.toFixed(2)+' €';
+    document.getElementById('total-pago').innerText = totalPago.toFixed(2)+' kz';
+    document.getElementById('restante-pagar').innerText = restante.toFixed(2)+' kz';
     document.getElementById('progresso').innerText = progresso+'%';
 
     const materialList = document.getElementById('material-list');
@@ -384,7 +384,7 @@ function renderFinances() {
             <div class="material-item">
                 <div class="material-info">
                     <h4>${m.nome}</h4>
-                    <p>Preço: ${m.preco.toFixed(2)} €</p>
+                    <p>Preço: ${m.preco.toFixed(2)} kz</p>
                 </div>
                 <button class="btn btn-danger" onclick="removeMaterial(${i})">🗑️</button>
             </div>
@@ -392,12 +392,12 @@ function renderFinances() {
     }
 
     const totalMaterial = finances.materialEscolar.reduce((sum,m)=>sum+m.preco,0);
-    document.getElementById('total-material').innerText = totalMaterial.toFixed(2)+' €';
+    document.getElementById('total-material').innerText = totalMaterial.toFixed(2)+' kz';
 
     const totalGasto = totalPago + totalMaterial;
     const totalPrevisto = (finances.propinaMensal*finances.mesesTotais) + totalMaterial;
-    document.getElementById('total-gasto').innerText = totalGasto.toFixed(2)+' €';
-    document.getElementById('total-previsto').innerText = totalPrevisto.toFixed(2)+' €';
+    document.getElementById('total-gasto').innerText = totalGasto.toFixed(2)+' kz';
+    document.getElementById('total-previsto').innerText = totalPrevisto.toFixed(2)+' kz';
 }
 
 function removeMaterial(index){
