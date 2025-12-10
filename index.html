@@ -360,12 +360,17 @@ function addMaterial() {
     if(isNaN(preco)) return;
     const quantidade = parseInt(prompt('Quantidade:'),10);
     if(isNaN(quantidade) || quantidade<1) return;
-    finances.materialEscolar.push({nome,preco,quantidade});
+    const mes = parseInt(prompt('Mês (1-12):'),10);
+    if(isNaN(mes) || mes<1 || mes>12) return;
+    const semana = parseInt(prompt('Semana do mês (1-4):'),10);
+    if(isNaN(semana) || semana<1 || semana>4) return;
+
+    finances.materialEscolar.push({nome, preco, quantidade, mes, semana});
     saveData();
     renderFinances();
 }
 
-function renderFinances() {
+function renderFinances(filtroMes = null, filtroSemana = null) {
     document.getElementById('propina-mensal').value = finances.propinaMensal;
     document.getElementById('meses-totais').value = finances.mesesTotais;
     document.getElementById('meses-pagos').value = finances.mesesPagos;
@@ -379,15 +384,20 @@ function renderFinances() {
     document.getElementById('progresso').innerText = progresso+'%';
 
     const materialList = document.getElementById('material-list');
-    if(finances.materialEscolar.length===0){
+    let materiaisFiltrados = finances.materialEscolar;
+    if(filtroMes) materiaisFiltrados = materiaisFiltrados.filter(m=>m.mes===filtroMes);
+    if(filtroSemana) materiaisFiltrados = materiaisFiltrados.filter(m=>m.semana===filtroSemana);
+
+    if(materiaisFiltrados.length===0){
         materialList.innerHTML = `<p style="opacity:0.6;">Nenhum gasto adicionado</p>`;
     } else {
-        materialList.innerHTML = finances.materialEscolar.map((m,i)=>`
+        materialList.innerHTML = materiaisFiltrados.map((m,i)=>`
             <div class="material-item">
                 <div class="material-info">
                     <h4>${m.nome}</h4>
                     <p>Preço unitário: ${m.preco.toFixed(2)} kz</p>
-                    <p>Quantidade: <input type="number" min="1" value="${m.quantidade}" onchange="updateMaterial(${i},this.value)"></p>
+                    <p>Quantidade: <input type="number" min="1" value="${m.quantidade}" onchange="updateMaterial(${i}, this.value)"></p>
+                    <p>Mês: ${m.mes}, Semana: ${m.semana}</p>
                     <p>Total: ${(m.preco*m.quantidade).toFixed(2)} kz</p>
                 </div>
                 <button class="btn btn-danger" onclick="removeMaterial(${i})">🗑️</button>
@@ -395,7 +405,7 @@ function renderFinances() {
         `).join('');
     }
 
-    const totalMaterial = finances.materialEscolar.reduce((sum,m)=>sum+m.preco*m.quantidade,0);
+    const totalMaterial = materiaisFiltrados.reduce((sum,m)=>sum+m.preco*m.quantidade,0);
     document.getElementById('total-material').innerText = totalMaterial.toFixed(2)+' kz';
 
     const totalGasto = totalPago + totalMaterial;
@@ -411,6 +421,13 @@ function updateMaterial(index, novaQtd){
     saveData();
     renderFinances();
 }
+
+// Função para filtrar por mês ou semana
+function filtrarGastos(mes=null, semana=null) {
+    renderFinances(mes, semana);
+}
+
+// Função para remover material
 
 function removeMaterial(index){
     finances.materialEscolar.splice(index,1);
