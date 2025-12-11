@@ -58,7 +58,33 @@ body {font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubun
 .empty-state {text-align:center; padding:60px 20px; color:#9ca3af;}
 .empty-state svg {width:80px; height:80px; margin-bottom:20px; opacity:0.5;}
 .summary-card {background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%); color:white; padding:30px; border-radius:12px; margin-top:20px;}
-@media (max-width:768px){.subject-grid{grid-template-columns:1fr;}.header h1{font-size:1.8em;}}
+@media (max-width:768px){
+    body {padding:10px;}
+    .container {border-radius:15px;}
+    .header {padding:20px;}
+    .header h1{font-size:1.6em;}
+    .header p {font-size:0.9em;}
+    .tabs {flex-direction:row; overflow-x:auto;}
+    .tab {padding:15px 10px; font-size:0.95em; white-space:nowrap;}
+    .content {padding:15px;}
+    .semester-selector {flex-direction:column; align-items:stretch;}
+    .semester-selector select, .semester-selector button {width:100%;}
+    .subject-grid{grid-template-columns:1fr;}
+    .subject-header {flex-direction:column; align-items:flex-start; gap:15px;}
+    .grade-display {width:100%; justify-content:space-between;}
+    .finance-card {padding:20px;}
+    .finance-card h3 {font-size:1.3em;}
+    .finance-grid {grid-template-columns:1fr;}
+    .material-header {flex-direction:column; gap:10px;}
+    .material-header button {width:100%;}
+    .material-item {flex-direction:column; align-items:flex-start; gap:15px;}
+    .material-item button {width:100%;}
+    .material-info {width:100%;}
+    .finance-stat h4 {font-size:1.5em;}
+    .summary-card {padding:20px;}
+    .btn {width:100%; justify-content:center;}
+    input[type="file"] {width:100%; margin-top:10px;}
+}
 </style>
 </head>
 <body>
